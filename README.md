@@ -4,6 +4,8 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 
 ![Example Map](https://img.shields.io/badge/OSM-Data-green) ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 
+**[🗺️ View Live Demo: Wrocław Gravel Roads](https://mrpear.github.io/route-generator/)**
+
 ## Features
 
 - 🗺️ **OpenStreetMap Integration** - Query unpaved roads with gravel surfaces

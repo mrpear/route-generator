@@ -14,6 +14,9 @@ output/*
 !output/.gitkeep
 !output/wroclaw/
 
+# GitHub Pages (track docs/ for live demo)
+# docs/ is intentionally tracked
+
 # IDE
 .idea/
 .vscode/
