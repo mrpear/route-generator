@@ -89,8 +89,8 @@ def create_interactive_map(
                 font-size:14px; padding: 10px; border-radius: 5px;">
         <p style="margin: 0 0 8px 0; font-weight: bold;">Road Quality</p>
         <p style="margin: 4px 0;"><span style="color: {tier_colors['Premium']}; font-size: 20px;">●</span> Premium (80-100)</p>
-        <p style="margin: 4px 0;"><span style="color: {tier_colors['Good']}; font-size: 20px;">●</span> Good (60-79)</p>
-        <p style="margin: 4px 0;"><span style="color: {tier_colors['Acceptable']}; font-size: 20px;">●</span> Acceptable (50-59)</p>
+        <p style="margin: 4px 0;"><span style="color: {tier_colors['Good']}; font-size: 20px;">●</span> Good (65-79)</p>
+        <p style="margin: 4px 0;"><span style="color: {tier_colors['Acceptable']}; font-size: 20px;">●</span> Acceptable (50-64)</p>
         <p style="margin: 4px 0;"><span style="color: {tier_colors['Poor']}; font-size: 20px;">●</span> Poor (<50)</p>
     </div>
     """

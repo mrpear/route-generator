@@ -14,7 +14,7 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 - 📊 **Multiple Formats** - Export to GeoJSON, CSV, and HTML
 - 🔍 **Advanced Filtering** - Filter by score, tier, length, and quality
 - 🏆 **Quality Scoring** - Roads with rough surfaces get lower scores automatically
-- 📍 **Example Dataset** - Includes 4,738 gravel roads around Wrocław (ready to explore)
+- 📍 **Example Dataset** - Includes 5,253 gravel roads around Wrocław (ready to explore)
 
 ## Quick Start
 
@@ -34,14 +34,14 @@ open output/wroclaw/gravel_roads.html
 The repository includes a pre-generated example dataset in `output/wroclaw/`:
 
 ```
-Found: 8,386 roads (within 50km)
-Filtered: 4,738 roads (≥ 100m length)
-  Premium (80-100): 324 roads
-  Good (60-79): 3,908 roads
-  Acceptable (50-59): 486 roads
+Found: 8,882 roads (within 50km)
+Filtered: 5,253 roads (≥ 100m length)
+  Premium (80-100): 345 roads
+  Good (65-79): 3,388 roads
+  Acceptable (50-64): 1,500 roads
   Poor (<50): 20 roads
-Total length: 2,401.5 km
-Average score: 68.2
+Total length: 2,526.5 km
+Average score: 68.4
 ```
 
 ## Scoring Methodology
@@ -100,8 +100,8 @@ Based on [OSM smoothness values](https://wiki.openstreetmap.org/wiki/Key:smoothn
 ## Tier Classification
 
 - 🔴 **Premium** (80-100): Excellent surface, well-maintained, low traffic
-- 🟠 **Good** (60-79): Good surface, rideable, some traffic
-- 🟡 **Acceptable** (50-59): Passable but may be rough or narrow
+- 🟠 **Good** (65-79): Good surface, rideable, some traffic
+- 🟡 **Acceptable** (50-64): Passable but may be rough or narrow
 - 🔵 **Poor** (<50): Not recommended
 
 ## Usage
@@ -231,9 +231,9 @@ route-generator/
 └── output/                       # Output directories
     ├── .gitkeep                  # Tracked in git
     └── wroclaw/                  # Example dataset (included in repo)
-        ├── gravel_roads.geojson  # 4,738 roads, 7.6 MB
-        ├── gravel_roads.csv      # Tabular data, 526 KB
-        └── gravel_roads.html     # Interactive map, 14 MB
+        ├── gravel_roads.geojson  # 5,253 roads, 8.2 MB
+        ├── gravel_roads.csv      # Tabular data, 607 KB
+        └── gravel_roads.html     # Interactive map, 15 MB
 ```
 
 ## Requirements

@@ -113,7 +113,7 @@ def calculate_premium_score(road: dict) -> dict:
     # Determine tier
     if total_score >= 80:
         tier = 'Premium'
-    elif total_score >= 60:
+    elif total_score >= 65:
         tier = 'Good'
     elif total_score >= 50:
         tier = 'Acceptable'

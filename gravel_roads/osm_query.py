@@ -57,7 +57,7 @@ def get_gravel_roads(
       way(around:{radius_m},{lat},{lon})
         ["highway"="track"]
         ["tracktype"~"^grade[12]$"]
-        ["surface"!="paved"]["surface"!="asphalt"]["surface"!="concrete"];
+        ["surface"!~"paved|asphalt|concrete|chipseal|metal"];
 
       // Paths with gravel surfaces (some forest paths are high quality)
       way(around:{radius_m},{lat},{lon})
@@ -75,7 +75,7 @@ def get_gravel_roads(
       way(around:{radius_m},{lat},{lon})
         ["highway"="service"]
         ["tracktype"~"^grade[12]$"]
-        ["surface"!="paved"]["surface"!="asphalt"]["surface"!="concrete"]
+        ["surface"!~"paved|asphalt|concrete|chipseal|metal"]
         ["bicycle"!="no"];
 
       // Emergency access roads with good smoothness (assume unpaved unless explicitly paved)
@@ -83,7 +83,12 @@ def get_gravel_roads(
         ["highway"="service"]
         ["service"="emergency_access"]
         ["smoothness"~"^(excellent|good|intermediate)$"]
-        ["surface"!="paved"]["surface"!="asphalt"]["surface"!="concrete"];
+        ["surface"!~"paved|asphalt|concrete|chipseal|metal"];
+
+      // Gravel residential roads (rural gravel streets)
+      way(around:{radius_m},{lat},{lon})
+        ["highway"="residential"]
+        ["surface"~"^(gravel|fine_gravel|compacted)$"];
     );
     out body;
     >;
