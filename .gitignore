@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+
+# Poetry
+poetry.lock
+
+# Output data (track directory structure, ignore generated files except wroclaw)
+output/*
+!output/.gitkeep
+!output/wroclaw/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
