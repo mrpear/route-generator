@@ -69,8 +69,8 @@ Examples:
     parser.add_argument(
         '--min-length',
         type=float,
-        default=0.5,
-        help='Minimum road length in kilometers (default: 0.5)'
+        default=0.1,
+        help='Minimum road length in kilometers (default: 0.1)'
     )
 
     parser.add_argument(

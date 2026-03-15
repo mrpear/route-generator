@@ -77,6 +77,13 @@ def get_gravel_roads(
         ["tracktype"~"^grade[12]$"]
         ["surface"!="paved"]["surface"!="asphalt"]["surface"!="concrete"]
         ["bicycle"!="no"];
+
+      // Emergency access roads with good smoothness (assume unpaved unless explicitly paved)
+      way(around:{radius_m},{lat},{lon})
+        ["highway"="service"]
+        ["service"="emergency_access"]
+        ["smoothness"~"^(excellent|good|intermediate)$"]
+        ["surface"!="paved"]["surface"!="asphalt"]["surface"!="concrete"];
     );
     out body;
     >;

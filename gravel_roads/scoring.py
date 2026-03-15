@@ -43,18 +43,20 @@ def calculate_premium_score(road: dict) -> dict:
     tracktype_score = tracktype_scores.get(road['tracktype'], 15)
 
     # Smoothness (20 points)
+    # Based on OSM wiki: excellent=roller skates, good=racing bikes, intermediate=city bikes,
+    # bad=mountain bikes (acceptable for gravel!), very_bad=off-road vehicles
     smoothness_scores = {
-        'excellent': 20,
-        'good': 18,
-        'intermediate': 15,
-        None: 12,  # Unknown
-        'bad': 10,
-        'rough': 8,
-        'very_bad': 5,
-        'very_rough': 5,
-        'horrible': 3,
-        'very_horrible': 1,
-        'impassable': 0,
+        'excellent': 20,       # Roller skates quality
+        'good': 18,            # Racing bicycles
+        'intermediate': 15,    # City bicycles
+        'bad': 13,             # Mountain bikes (acceptable for gravel bikes!)
+        None: 12,              # Unknown
+        'rough': 10,           # Rough but rideable
+        'very_bad': 7,         # High-clearance vehicles (challenging)
+        'very_rough': 5,       # Off-road vehicles (very challenging)
+        'horrible': 3,         # Heavy off-road vehicles
+        'very_horrible': 1,    # Tractors/ATVs
+        'impassable': 0,       # No wheeled vehicles
     }
     smoothness_score = smoothness_scores.get(road['smoothness'], 12)
 

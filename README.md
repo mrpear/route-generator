@@ -14,7 +14,7 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 - 📊 **Multiple Formats** - Export to GeoJSON, CSV, and HTML
 - 🔍 **Advanced Filtering** - Filter by score, tier, length, and quality
 - 🏆 **Quality Scoring** - Roads with rough surfaces get lower scores automatically
-- 📍 **Example Dataset** - Includes 2,762 gravel roads around Wrocław (ready to explore)
+- 📍 **Example Dataset** - Includes 4,738 gravel roads around Wrocław (ready to explore)
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 # Install dependencies
 poetry install
 
-# Search for gravel roads around Wrocław (default: 50km radius, 250m minimum)
+# Search for gravel roads around Wrocław (default: 50km radius, 100m minimum)
 poetry run python find_gravel_roads.py --name wroclaw
 
 # View the interactive map
@@ -35,13 +35,13 @@ The repository includes a pre-generated example dataset in `output/wroclaw/`:
 
 ```
 Found: 8,386 roads (within 50km)
-Filtered: 2,762 roads (≥ 250m length)
-  Premium (80-100): 204 roads
-  Good (60-79): 2,225 roads
-  Acceptable (50-59): 315 roads
-  Poor (<50): 18 roads
-Total length: 2,088.7 km
-Average score: 67.7
+Filtered: 4,738 roads (≥ 100m length)
+  Premium (80-100): 324 roads
+  Good (60-79): 3,908 roads
+  Acceptable (50-59): 486 roads
+  Poor (<50): 20 roads
+Total length: 2,401.5 km
+Average score: 68.2
 ```
 
 ## Scoring Methodology
@@ -66,16 +66,18 @@ Based on OSM tracktype grade:
 - **grade5**: 3 pts - Very rough, barely passable
 
 ### Smoothness (20 points)
-- **excellent**: 20 pts
-- **good**: 18 pts
-- **intermediate**: 15 pts
-- **unknown**: 12 pts (assumed moderate)
-- **bad**: 10 pts
-- **rough**: 8 pts
-- **very_bad/very_rough**: 5 pts
-- **horrible**: 3 pts
-- **very_horrible**: 1 pt
-- **impassable**: 0 pts
+Based on [OSM smoothness values](https://wiki.openstreetmap.org/wiki/Key:smoothness):
+- **excellent**: 20 pts - Roller skates quality
+- **good**: 18 pts - Racing bicycles
+- **intermediate**: 15 pts - City bicycles
+- **bad**: 13 pts - Mountain bikes (acceptable for gravel!)
+- **unknown**: 12 pts - Assumed moderate
+- **rough**: 10 pts - Rough but rideable
+- **very_bad**: 7 pts - High-clearance vehicles (challenging)
+- **very_rough**: 5 pts - Off-road vehicles
+- **horrible**: 3 pts - Heavy off-road vehicles
+- **very_horrible**: 1 pt - Tractors/ATVs
+- **impassable**: 0 pts - No wheeled vehicles
 
 ### Traffic Level (15 points)
 - **Bicycle-only paths**: 14 pts - No motor vehicles
@@ -229,9 +231,9 @@ route-generator/
 └── output/                       # Output directories
     ├── .gitkeep                  # Tracked in git
     └── wroclaw/                  # Example dataset (included in repo)
-        ├── gravel_roads.geojson  # 2,762 roads, 5.3 MB
-        ├── gravel_roads.csv      # Tabular data, 308 KB
-        └── gravel_roads.html     # Interactive map, 8.3 MB
+        ├── gravel_roads.geojson  # 4,738 roads, 7.6 MB
+        ├── gravel_roads.csv      # Tabular data, 526 KB
+        └── gravel_roads.html     # Interactive map, 14 MB
 ```
 
 ## Requirements
