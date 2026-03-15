@@ -14,7 +14,7 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 - 📊 **Multiple Formats** - Export to GeoJSON, CSV, and HTML
 - 🔍 **Advanced Filtering** - Filter by score, tier, length, and quality
 - 🏆 **Quality Scoring** - Roads with rough surfaces get lower scores automatically
-- 📍 **Example Dataset** - Includes 1,521 gravel roads around Wrocław (ready to explore)
+- 📍 **Example Dataset** - Includes 2,762 gravel roads around Wrocław (ready to explore)
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ Discover premium gravel cycling roads using OpenStreetMap data. Built for findin
 # Install dependencies
 poetry install
 
-# Search for gravel roads around Wrocław (default: 50km radius, 500m minimum)
+# Search for gravel roads around Wrocław (default: 50km radius, 250m minimum)
 poetry run python find_gravel_roads.py --name wroclaw
 
 # View the interactive map
@@ -35,13 +35,13 @@ The repository includes a pre-generated example dataset in `output/wroclaw/`:
 
 ```
 Found: 8,386 roads (within 50km)
-Filtered: 1,521 roads (≥ 500m length)
-  Premium (80-100): 129 roads
-  Good (60-79): 1,224 roads
-  Acceptable (50-59): 160 roads
-  Poor (<50): 8 roads
-Total length: 1,651 km
-Average score: 67.9
+Filtered: 2,762 roads (≥ 250m length)
+  Premium (80-100): 204 roads
+  Good (60-79): 2,225 roads
+  Acceptable (50-59): 315 roads
+  Poor (<50): 18 roads
+Total length: 2,088.7 km
+Average score: 67.7
 ```
 
 ## Scoring Methodology
@@ -229,9 +229,9 @@ route-generator/
 └── output/                       # Output directories
     ├── .gitkeep                  # Tracked in git
     └── wroclaw/                  # Example dataset (included in repo)
-        ├── gravel_roads.geojson  # 1,521 roads, 3.5 MB
-        ├── gravel_roads.csv      # Tabular data, 170 KB
-        └── gravel_roads.html     # Interactive map, 4.8 MB
+        ├── gravel_roads.geojson  # 2,762 roads, 5.3 MB
+        ├── gravel_roads.csv      # Tabular data, 308 KB
+        └── gravel_roads.html     # Interactive map, 8.3 MB
 ```
 
 ## Requirements
