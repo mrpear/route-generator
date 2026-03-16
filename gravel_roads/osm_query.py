@@ -54,13 +54,13 @@ def get_gravel_roads(
       // Tracks with explicit gravel surfaces
       way(around:{radius_m},{lat},{lon})
         ["highway"="track"]
-        ["surface"~"^(gravel|fine_gravel|compacted|ground)$"];
+        ["surface"~"^(gravel|fine_gravel|compacted)$"];
 
       // Tracks with grade1/grade2 (well-maintained unpaved)
       way(around:{radius_m},{lat},{lon})
         ["highway"="track"]
         ["tracktype"~"^grade[12]$"]
-        ["surface"!~"paved|asphalt|concrete|chipseal|metal"];
+        ["surface"~"^(gravel|fine_gravel|compacted|unpaved)$"];
 
       // Paths with gravel surfaces (some forest paths are high quality)
       way(around:{radius_m},{lat},{lon})
@@ -71,14 +71,14 @@ def get_gravel_roads(
       // Service roads with gravel surfaces (forest service roads, cycling paths)
       way(around:{radius_m},{lat},{lon})
         ["highway"="service"]
-        ["surface"~"^(gravel|fine_gravel|compacted|ground)$"]
+        ["surface"~"^(gravel|fine_gravel|compacted)$"]
         ["bicycle"!="no"];
 
       // Service roads with grade1/grade2 (well-maintained unpaved)
       way(around:{radius_m},{lat},{lon})
         ["highway"="service"]
         ["tracktype"~"^grade[12]$"]
-        ["surface"!~"paved|asphalt|concrete|chipseal|metal"]
+        ["surface"~"^(gravel|fine_gravel|compacted|unpaved)$"]
         ["bicycle"!="no"];
 
       // Emergency access roads with good smoothness (assume unpaved unless explicitly paved)
@@ -86,7 +86,13 @@ def get_gravel_roads(
         ["highway"="service"]
         ["service"="emergency_access"]
         ["smoothness"~"^(excellent|good|intermediate)$"]
-        ["surface"!~"paved|asphalt|concrete|chipseal|metal"];
+        ["surface"~"^(gravel|fine_gravel|compacted|unpaved)$"];
+
+      // Emergency designated roads (fire paths, emergency routes)
+      // Include all emergency=designated roads regardless of surface
+      way(around:{radius_m},{lat},{lon})
+        ["highway"="service"]
+        ["emergency"="designated"];
 
       // Gravel residential roads (rural gravel streets)
       way(around:{radius_m},{lat},{lon})

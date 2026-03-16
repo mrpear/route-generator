@@ -26,6 +26,17 @@ def create_interactive_map(
         tiles='OpenStreetMap'
     )
 
+    # Add spinner CSS animation
+    spinner_css = """
+    <style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
+    """
+    m.get_root().html.add_child(folium.Element(spinner_css))
+
     # Heat map colors - hot (best) to cool (worst) - ColorBrewer accessible
     tier_colors = {
         'Premium': '#D81B60',    # Magenta (hot/best)
@@ -84,36 +95,86 @@ def create_interactive_map(
                     const name = props.name || `Unnamed road (OSM ${{props.osm_id}})`;
                     const breakdown = props.score_breakdown;
 
-                    // Create popup
-                    const popupContent = `
-                        <div style="font-family: Arial, sans-serif; font-size: 13px; min-width: 200px;">
-                            <h4 style="margin: 0 0 8px 0;">${{name}}</h4>
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <tr><td><b>Score:</b></td><td>${{props.premium_score}} pts (${{props.premium_tier}})</td></tr>
-                                <tr><td><b>Length:</b></td><td>${{props.length_km}} km</td></tr>
-                                <tr><td colspan="2" style="padding-top: 8px;"><b>Properties:</b></td></tr>
-                                <tr><td>Surface:</td><td>${{props.surface}}</td></tr>
-                                <tr><td>Tracktype:</td><td>${{props.tracktype || 'N/A'}}</td></tr>
-                                <tr><td>Smoothness:</td><td>${{props.smoothness || 'N/A'}}</td></tr>
-                                <tr><td>Width:</td><td>${{props.width || 'N/A'}} m</td></tr>
-                                <tr><td colspan="2" style="padding-top: 8px;"><b>Score Breakdown:</b></td></tr>
-                                <tr><td>Surface:</td><td>${{breakdown.surface}}/25</td></tr>
-                                <tr><td>Tracktype:</td><td>${{breakdown.tracktype}}/25</td></tr>
-                                <tr><td>Smoothness:</td><td>${{breakdown.smoothness}}/20</td></tr>
-                                <tr><td>Traffic:</td><td>${{breakdown.traffic}}/15</td></tr>
-                                <tr><td>Width:</td><td>${{breakdown.width}}/10</td></tr>
-                                <tr><td>Access:</td><td>${{breakdown.access}}/5</td></tr>
-                            </table>
-                            <p style="margin: 8px 0 0 0; font-size: 11px;">
-                                <a href="https://www.openstreetmap.org/way/${{props.osm_id}}" target="_blank">
-                                    View on OpenStreetMap
-                                </a>
-                            </p>
-                        </div>
-                    `;
-
-                    layer.bindPopup(popupContent, {{maxWidth: 300}});
+                    // Tooltip (always visible on hover)
                     layer.bindTooltip(`${{name}} (${{props.premium_tier}}, ${{props.premium_score}} pts)`);
+
+                    // Click handler - generate imagery around clicked point
+                    layer.on('click', function(e) {{
+                        const clickLat = e.latlng.lat;
+                        const clickLon = e.latlng.lng;
+
+                        // Generate Polish Geoportal WMS preview URL (25cm resolution - faster than 10cm HighResolution)
+                        const wmsUrl = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution';
+                        const width = 400;
+                        const height = 400;
+
+                        // Fixed-size square bbox around click point to match 1:1 image ratio
+                        const buffer = 0.0004; // ~40m radius for max zoom
+                        const bbox = [
+                            clickLon - buffer,
+                            clickLat - buffer,
+                            clickLon + buffer,
+                            clickLat + buffer
+                        ];
+                        const imageUrl = `${{wmsUrl}}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=Raster&STYLES=&CRS=EPSG:4326&BBOX=${{bbox[1]}},${{bbox[0]}},${{bbox[3]}},${{bbox[2]}}&WIDTH=${{width}}&HEIGHT=${{height}}&FORMAT=image/png`;
+
+                        // Create popup content with imagery centered on click
+                        const popupContent = `
+                            <div style="font-family: Arial, sans-serif; font-size: 13px; min-width: 400px;">
+                                <h4 style="margin: 0 0 8px 0;">${{name}}</h4>
+                                <div style="position: relative; width: 100%; height: 400px; margin-bottom: 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 3px;">
+                                    <div id="spinner-${{props.osm_id}}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                                        <div style="margin-top: 10px; color: #666; font-size: 12px;">Loading imagery...</div>
+                                    </div>
+                                    <img src="${{imageUrl}}" style="width: 100%; height: auto; display: none;"
+                                         alt="Satellite imagery (10cm resolution)"
+                                         onload="this.style.display='block'; document.getElementById('spinner-${{props.osm_id}}').style.display='none';"
+                                         onerror="document.getElementById('spinner-${{props.osm_id}}').innerHTML='<div style=\\'color: #999;\\'>Imagery not available</div>';">
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <div style="font-weight: bold; margin-bottom: 4px;">Properties</div>
+                                        <table style="width: 100%; font-size: 12px;">
+                                            <tr><td><b>Score:</b></td><td><b>${{props.premium_score}} pts (${{props.premium_tier}})</b></td></tr>
+                                            <tr><td><b>Length:</b></td><td><b>${{props.length_km}} km</b></td></tr>
+                                            <tr><td>Surface:</td><td>${{props.surface}}</td></tr>
+                                            <tr><td>Tracktype:</td><td>${{props.tracktype || 'N/A'}}</td></tr>
+                                            <tr><td>Smoothness:</td><td>${{props.smoothness || 'N/A'}}</td></tr>
+                                            <tr><td>Width:</td><td>${{props.width || 'N/A'}} m</td></tr>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: bold; margin-bottom: 4px;">Score Breakdown</div>
+                                        <table style="width: 100%; font-size: 12px;">
+                                            <tr><td>Surface:</td><td>${{breakdown.surface}}/25</td></tr>
+                                            <tr><td>Tracktype:</td><td>${{breakdown.tracktype}}/25</td></tr>
+                                            <tr><td>Smoothness:</td><td>${{breakdown.smoothness}}/20</td></tr>
+                                            <tr><td>Traffic:</td><td>${{breakdown.traffic}}/15</td></tr>
+                                            <tr><td>Width:</td><td>${{breakdown.width}}/10</td></tr>
+                                            <tr><td>Access:</td><td>${{breakdown.access}}/5</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <p style="margin: 8px 0 0 0; font-size: 11px;">
+                                    <a href="https://www.openstreetmap.org/way/${{props.osm_id}}" target="_blank">
+                                        View on OpenStreetMap
+                                    </a>
+                                </p>
+                            </div>
+                        `;
+
+                        // Create and open popup at click location
+                        const popup = L.popup({{
+                            maxWidth: 450,
+                            autoPan: true,
+                            autoPanPaddingTopLeft: [50, 50],
+                            autoPanPaddingBottomRight: [50, 50]
+                        }})
+                        .setLatLng(e.latlng)
+                        .setContent(popupContent)
+                        .openOn(e.target._map);
+                    }});
                 }}
             }}).addTo({m.get_name()});
         }})

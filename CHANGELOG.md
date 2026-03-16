@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-17
+
+### Changed
+- **Surface filtering improved**: Exclude ground, dirt, and earth surfaces (low-quality unpaved) to focus on gravel/compacted roads
+- **Search radius expanded** to 75km for broader coverage
+- **OSM query optimized**: Use positive filtering for surfaces (gravel/fine_gravel/compacted/unpaved) instead of negative filtering
+
+### Added
+- **Satellite imagery previews** in map popups: 25cm resolution imagery from Polish Geoportal (WMS StandardResolution)
+- **Emergency designated roads**: Include all `emergency=designated` fire paths regardless of surface tags
+- **Loading spinner** for satellite imagery in popups
+- **Click-based imagery**: Shows satellite view around clicked point (not entire road)
+- **Side-by-side layout** in popups: Properties and Score Breakdown in two columns
+- **Auto-pan popup**: Map automatically centers popups when opened
+
+### Fixed
+- Surface queries now explicitly require gravel-like surfaces (gravel/fine_gravel/compacted/unpaved)
+- Emergency access roads filtered for good surfaces only
+- Service roads filtered for gravel surfaces or good tracktype
+
+### Dataset (75km around Wrocław)
+- Total: 3,568 roads (6,189 found, filtered by length and surface quality)
+- Premium: 539 roads
+- Good: 2,948 roads
+- Acceptable: 81 roads
+- Poor: 0 roads
+- Total length: 1,662.8 km
+- Average score: 73.4 (up from 68.4)
+
 ## [0.4.0] - 2026-03-15
 
 ### Changed
