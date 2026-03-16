@@ -3,7 +3,7 @@ package-mode = false
 
 [project]
 name = "route-generator"
-version = "0.1.0"
+version = "0.4.0"
 description = "Tools for generating, analyzing, and modifying cycling routes (GPX and FIT files)"
 requires-python = ">=3.10,<3.14"
 dependencies = [

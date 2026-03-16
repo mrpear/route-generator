@@ -1,6 +1,7 @@
 """Query OpenStreetMap for gravel roads using Overpass API."""
 
 import overpy
+import time
 from math import radians, cos, sin, asin, sqrt
 
 
@@ -27,7 +28,8 @@ def calculate_length(coordinates: list[tuple[float, float]]) -> float:
 def get_gravel_roads(
     center: tuple[float, float],
     radius_km: float = 50,
-    timeout: int = 180
+    timeout: int = 180,
+    max_retries: int = 3
 ) -> list[dict]:
     """
     Query Overpass API for gravel roads around a center point.
@@ -36,6 +38,7 @@ def get_gravel_roads(
         center: (latitude, longitude) tuple for search center
         radius_km: Search radius in kilometers
         timeout: Overpass API timeout in seconds
+        max_retries: Maximum number of retry attempts (default: 3)
 
     Returns:
         List of road segment dictionaries with OSM data and calculated properties
@@ -96,7 +99,33 @@ def get_gravel_roads(
     """
 
     api = overpy.Overpass()
-    result = api.query(query)
+
+    # Retry logic with exponential backoff
+    for attempt in range(max_retries):
+        try:
+            result = api.query(query)
+            break  # Success, exit retry loop
+        except Exception as e:
+            error_msg = str(e).lower()
+
+            # Check if it's a retryable error (server load, rate limit, timeout)
+            is_retryable = any(x in error_msg for x in [
+                'load too high',
+                'rate limit',
+                'timeout',
+                'too many requests',
+                'service unavailable'
+            ])
+
+            if not is_retryable or attempt == max_retries - 1:
+                # Non-retryable error or last attempt, re-raise
+                raise
+
+            # Calculate backoff delay: 5s, 15s, 45s
+            delay = 5 * (3 ** attempt)
+            print(f"  Overpass API error: {e}")
+            print(f"  Retrying in {delay}s (attempt {attempt + 1}/{max_retries})...")
+            time.sleep(delay)
 
     roads = []
     for way in result.ways:

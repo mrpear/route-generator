@@ -7,6 +7,7 @@ Uses OpenStreetMap data to identify and rate unpaved roads suitable for gravel c
 
 import argparse
 import sys
+import json
 from pathlib import Path
 
 from gravel_roads.osm_query import get_gravel_roads
@@ -101,7 +102,61 @@ Examples:
         help='Overpass API timeout in seconds (default: 180)'
     )
 
+    parser.add_argument(
+        '--force-query',
+        action='store_true',
+        help='Force query OSM API even if cached data exists (default: use existing data)'
+    )
+
+    parser.add_argument(
+        '--max-retries',
+        type=int,
+        default=3,
+        help='Maximum retry attempts for Overpass API (default: 3)'
+    )
+
     return parser.parse_args()
+
+
+def load_roads_from_geojson(filepath: str) -> list[dict]:
+    """
+    Load roads from existing GeoJSON file.
+
+    Args:
+        filepath: Path to GeoJSON file
+
+    Returns:
+        List of road dictionaries
+    """
+    with open(filepath, 'r') as f:
+        geojson_data = json.load(f)
+
+    roads = []
+    for feature in geojson_data['features']:
+        props = feature['properties']
+        # Convert GeoJSON coordinates [lon, lat] back to (lat, lon) tuples
+        coords_geojson = feature['geometry']['coordinates']
+        coordinates = [(lat, lon) for lon, lat in coords_geojson]
+
+        road = {
+            'id': props['osm_id'],
+            'name': props['name'],
+            'coordinates': coordinates,
+            'length_km': props['length_km'],
+            'surface': props['surface'],
+            'tracktype': props['tracktype'],
+            'smoothness': props['smoothness'],
+            'width': props['width'],
+            'access': props['access'],
+            'bicycle': props['bicycle'],
+            'highway': props['highway'],
+            'premium_score': props['premium_score'],
+            'premium_tier': props['premium_tier'],
+            'score_breakdown': props['score_breakdown'],
+        }
+        roads.append(road)
+
+    return roads
 
 
 def main():
@@ -135,32 +190,53 @@ def main():
         # Auto-generate from location: output/lat_lon_rRadius/
         output_dir = f"output/{center[0]:.4f}_{center[1]:.4f}_r{int(args.radius)}"
 
-    print(f"Searching for gravel roads...")
-    print(f"  Center: {center[0]:.4f}, {center[1]:.4f}")
-    print(f"  Radius: {args.radius} km")
-    print(f"  Min length: {args.min_length} km")
-    print(f"  Timeout: {args.timeout}s")
-    print(f"  Output: {output_dir}")
+    # Check for existing data
+    output_path = Path(output_dir)
+    geojson_path = output_path / 'gravel_roads.geojson'
 
-    # Query OpenStreetMap
-    try:
-        roads = get_gravel_roads(center, args.radius, timeout=args.timeout)
-        print(f"\nFound {len(roads)} roads")
-    except Exception as e:
-        print(f"Error querying OpenStreetMap: {e}")
-        sys.exit(1)
+    if geojson_path.exists() and not args.force_query:
+        print(f"Loading existing data from {geojson_path}")
+        print("(Use --force-query to fetch fresh data from OSM)")
+        try:
+            roads = load_roads_from_geojson(str(geojson_path))
+            print(f"Loaded {len(roads)} roads from cache")
+        except Exception as e:
+            print(f"Error loading cached data: {e}")
+            print("Falling back to querying OSM...")
+            args.force_query = True
 
-    if not roads:
-        print("No gravel roads found in the specified area.")
-        sys.exit(0)
+    if not geojson_path.exists() or args.force_query:
+        print(f"Querying OpenStreetMap API...")
+        print(f"  Center: {center[0]:.4f}, {center[1]:.4f}")
+        print(f"  Radius: {args.radius} km")
+        print(f"  Min length: {args.min_length} km")
+        print(f"  Timeout: {args.timeout}s")
+        print(f"  Output: {output_dir}")
 
-    # Score each road
-    print("Calculating premium scores...")
-    for road in roads:
-        score_data = calculate_premium_score(road)
-        road['premium_score'] = score_data['total_score']
-        road['premium_tier'] = score_data['tier']
-        road['score_breakdown'] = score_data['breakdown']
+        # Query OpenStreetMap
+        try:
+            roads = get_gravel_roads(
+                center,
+                args.radius,
+                timeout=args.timeout,
+                max_retries=args.max_retries
+            )
+            print(f"\nFound {len(roads)} roads")
+        except Exception as e:
+            print(f"Error querying OpenStreetMap: {e}")
+            sys.exit(1)
+
+        if not roads:
+            print("No gravel roads found in the specified area.")
+            sys.exit(0)
+
+        # Score each road
+        print("Calculating premium scores...")
+        for road in roads:
+            score_data = calculate_premium_score(road)
+            road['premium_score'] = score_data['total_score']
+            road['premium_tier'] = score_data['tier']
+            road['score_breakdown'] = score_data['breakdown']
 
     # Filter by length, score, and tier
     original_count = len(roads)
@@ -213,22 +289,25 @@ def main():
               f"Surface: {road['surface']}")
 
     # Export data
-    output_path = Path(output_dir)
     print(f"\n=== Exporting Data to {output_path} ===")
 
-    if 'geojson' in formats:
-        geojson_path = output_path / 'gravel_roads.geojson'
-        save_geojson(roads, str(geojson_path))
-        print(f"  GeoJSON: {geojson_path}")
+    # Save GeoJSON and CSV only if we queried OSM or they don't exist
+    if args.force_query or not geojson_path.exists():
+        if 'geojson' in formats:
+            save_geojson(roads, str(geojson_path))
+            print(f"  GeoJSON: {geojson_path}")
 
-    if 'csv' in formats:
-        csv_path = output_path / 'gravel_roads.csv'
-        save_csv(roads, str(csv_path))
-        print(f"  CSV: {csv_path}")
+        if 'csv' in formats:
+            csv_path = output_path / 'gravel_roads.csv'
+            save_csv(roads, str(csv_path))
+            print(f"  CSV: {csv_path}")
+    else:
+        print(f"  Using existing GeoJSON/CSV (data unchanged)")
 
+    # Always regenerate HTML map (may have styling/version changes)
     if 'html' in formats:
         html_path = output_path / 'gravel_roads.html'
-        print(f"  Generating interactive map...")
+        print(f"  Regenerating interactive map...")
         create_interactive_map(roads, center, str(html_path))
         print(f"  HTML Map: {html_path}")
 
