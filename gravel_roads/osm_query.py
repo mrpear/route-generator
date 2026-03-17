@@ -56,11 +56,18 @@ def get_gravel_roads(
         ["highway"="track"]
         ["surface"~"^(gravel|fine_gravel|compacted)$"];
 
-      // Tracks with grade1/grade2 (well-maintained unpaved)
+      // Tracks with grade1/grade2 and explicit gravel surfaces
       way(around:{radius_m},{lat},{lon})
         ["highway"="track"]
         ["tracktype"~"^grade[12]$"]
         ["surface"~"^(gravel|fine_gravel|compacted|unpaved)$"];
+
+      // ALL tracks with grade1/grade2 (well-maintained unpaved)
+      // By OSM definition, tracktype=grade1/2 are firm/compacted unpaved roads
+      way(around:{radius_m},{lat},{lon})
+        ["highway"="track"]
+        ["tracktype"~"^grade[12]$"]
+        ["surface"!~"^(asphalt|concrete|paved|paving_stones)$"];
 
       // Paths with gravel surfaces (some forest paths are high quality)
       way(around:{radius_m},{lat},{lon})

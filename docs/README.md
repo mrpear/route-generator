@@ -1,26 +1,31 @@
 # Wrocław Gravel Roads Interactive Map
 
-Live demo of the Gravel Road Finder showing 3,568 high-quality gravel cycling roads within 75km of Wrocław, Poland.
+Live demo of the Gravel Road Finder showing 8,950 high-quality gravel cycling roads within 75km of Wrocław, Poland.
 
 **Map Features:**
 - 💗 Magenta = Premium roads (80-100 score)
 - 🟠 Orange = Good roads (65-79 score)
 - 🟡 Yellow = Acceptable roads (50-64 score)
 - 🔵 Blue = Poor roads (<50 score)
-- 🛰️ Satellite imagery previews (25cm resolution) on click
 
 **Dataset Statistics:**
-- Total roads: 3,568 (≥ 100m length, quality gravel surfaces only)
-- Premium: 539 roads
-- Good: 2,948 roads
-- Acceptable: 81 roads
+- Total roads: 8,950 (≥ 100m length, includes all grade1/2 tracks)
+- Premium: 540 roads
+- Good: 8,313 roads
+- Acceptable: 97 roads
 - Poor: 0 roads
-- Total length: 1,662.8 km
-- Average score: 73.4
+- Total length: 5,147.7 km
+- Average score: 70.2
 
-**Version:** 0.5.0 | **File Size:** 12 KB HTML + 5.8 MB GeoJSON | **Colors:** ColorBrewer (WCAG AA)
+**Version:** 0.5.1 | **Search radius:** 75 km | **Colors:** ColorBrewer (WCAG AA)
 
-Click on any road segment to see detailed information including satellite imagery preview, surface type, smoothness, tracktype, and score breakdown. Satellite imagery loads dynamically from Polish Geoportal (25cm resolution).
+Click on any road segment to see detailed information including surface type, smoothness, tracktype, and score breakdown.
+
+**New in v0.5.1:**
+- Expanded to 75km radius (2.5× more roads)
+- Includes ALL tracktype=grade1/grade2 tracks
+- Simplified popups (removed satellite imagery for better performance)
+- Strava integration support (see main repo)
 
 ---
 

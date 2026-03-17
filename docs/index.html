@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_d0fa6507d2cc365250bffcc8add8f5a0 {
+                #map_c914cdec2ae0d50dfc4b4c60c937cf74 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,14 +54,6 @@
 <body>
     
     
-    <style>
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    </style>
-    
-    
     <div style="position: fixed;
                 bottom: 50px; right: 50px; width: 180px; height: 180px;
                 background-color: rgba(255, 255, 255, 0.95); border: 2px solid #333;
@@ -73,8 +65,8 @@
         <p style="margin: 4px 0;"><span style="color: #FDD835; font-size: 20px;">●</span> Acceptable (50-64)</p>
         <p style="margin: 4px 0;"><span style="color: #1976D2; font-size: 20px;">●</span> Poor (<50)</p>
         <hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;">
-        <p style="margin: 4px 0; font-size: 11px; color: #666;">Generated: 2026-03-16 23:56</p>
-        <p style="margin: 4px 0; font-size: 11px; color: #666;">Version: 0.4.0</p>
+        <p style="margin: 4px 0; font-size: 11px; color: #666;">Generated: 2026-03-17 10:36</p>
+        <p style="margin: 4px 0; font-size: 11px; color: #666;">Version: 0.5.1</p>
     </div>
     
     
@@ -109,98 +101,60 @@
                     // Tooltip (always visible on hover)
                     layer.bindTooltip(`${name} (${props.premium_tier}, ${props.premium_score} pts)`);
 
-                    // Click handler - generate imagery around clicked point
-                    layer.on('click', function(e) {
-                        const clickLat = e.latlng.lat;
-                        const clickLon = e.latlng.lng;
-
-                        // Generate Polish Geoportal WMS preview URL (25cm resolution - faster than 10cm HighResolution)
-                        const wmsUrl = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution';
-                        const width = 400;
-                        const height = 400;
-
-                        // Fixed-size square bbox around click point to match 1:1 image ratio
-                        const buffer = 0.0004; // ~40m radius for max zoom
-                        const bbox = [
-                            clickLon - buffer,
-                            clickLat - buffer,
-                            clickLon + buffer,
-                            clickLat + buffer
-                        ];
-                        const imageUrl = `${wmsUrl}?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&LAYERS=Raster&STYLES=&CRS=EPSG:4326&BBOX=${bbox[1]},${bbox[0]},${bbox[3]},${bbox[2]}&WIDTH=${width}&HEIGHT=${height}&FORMAT=image/png`;
-
-                        // Create popup content with imagery centered on click
-                        const popupContent = `
-                            <div style="font-family: Arial, sans-serif; font-size: 13px; min-width: 400px;">
-                                <h4 style="margin: 0 0 8px 0;">${name}</h4>
-                                <div style="position: relative; width: 100%; height: 400px; margin-bottom: 8px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 3px;">
-                                    <div id="spinner-${props.osm_id}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-                                        <div style="margin-top: 10px; color: #666; font-size: 12px;">Loading imagery...</div>
-                                    </div>
-                                    <img src="${imageUrl}" style="width: 100%; height: auto; display: none;"
-                                         alt="Satellite imagery (10cm resolution)"
-                                         onload="this.style.display='block'; document.getElementById('spinner-${props.osm_id}').style.display='none';"
-                                         onerror="document.getElementById('spinner-${props.osm_id}').innerHTML='<div style=\'color: #999;\'>Imagery not available</div>';">
+                    // Popup with road details
+                    const popupContent = `
+                        <div style="font-family: Arial, sans-serif; font-size: 13px; min-width: 300px;">
+                            <h4 style="margin: 0 0 8px 0;">${name}</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 4px;">Properties</div>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr><td><b>Score:</b></td><td><b>${props.premium_score} pts (${props.premium_tier})</b></td></tr>
+                                        <tr><td><b>Length:</b></td><td><b>${props.length_km} km</b></td></tr>
+                                        <tr><td>Surface:</td><td>${props.surface}</td></tr>
+                                        <tr><td>Tracktype:</td><td>${props.tracktype || 'N/A'}</td></tr>
+                                        <tr><td>Smoothness:</td><td>${props.smoothness || 'N/A'}</td></tr>
+                                        <tr><td>Width:</td><td>${props.width || 'N/A'} m</td></tr>
+                                    </table>
                                 </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div>
-                                        <div style="font-weight: bold; margin-bottom: 4px;">Properties</div>
-                                        <table style="width: 100%; font-size: 12px;">
-                                            <tr><td><b>Score:</b></td><td><b>${props.premium_score} pts (${props.premium_tier})</b></td></tr>
-                                            <tr><td><b>Length:</b></td><td><b>${props.length_km} km</b></td></tr>
-                                            <tr><td>Surface:</td><td>${props.surface}</td></tr>
-                                            <tr><td>Tracktype:</td><td>${props.tracktype || 'N/A'}</td></tr>
-                                            <tr><td>Smoothness:</td><td>${props.smoothness || 'N/A'}</td></tr>
-                                            <tr><td>Width:</td><td>${props.width || 'N/A'} m</td></tr>
-                                        </table>
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: bold; margin-bottom: 4px;">Score Breakdown</div>
-                                        <table style="width: 100%; font-size: 12px;">
-                                            <tr><td>Surface:</td><td>${breakdown.surface}/25</td></tr>
-                                            <tr><td>Tracktype:</td><td>${breakdown.tracktype}/25</td></tr>
-                                            <tr><td>Smoothness:</td><td>${breakdown.smoothness}/20</td></tr>
-                                            <tr><td>Traffic:</td><td>${breakdown.traffic}/15</td></tr>
-                                            <tr><td>Width:</td><td>${breakdown.width}/10</td></tr>
-                                            <tr><td>Access:</td><td>${breakdown.access}/5</td></tr>
-                                        </table>
-                                    </div>
+                                <div>
+                                    <div style="font-weight: bold; margin-bottom: 4px;">Score Breakdown</div>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr><td>Surface:</td><td>${breakdown.surface}/25</td></tr>
+                                        <tr><td>Tracktype:</td><td>${breakdown.tracktype}/25</td></tr>
+                                        <tr><td>Smoothness:</td><td>${breakdown.smoothness}/20</td></tr>
+                                        <tr><td>Traffic:</td><td>${breakdown.traffic}/15</td></tr>
+                                        <tr><td>Width:</td><td>${breakdown.width}/10</td></tr>
+                                        <tr><td>Access:</td><td>${breakdown.access}/5</td></tr>
+                                    </table>
                                 </div>
-                                <p style="margin: 8px 0 0 0; font-size: 11px;">
-                                    <a href="https://www.openstreetmap.org/way/${props.osm_id}" target="_blank">
-                                        View on OpenStreetMap
-                                    </a>
-                                </p>
                             </div>
-                        `;
+                            <p style="margin: 8px 0 0 0; font-size: 11px;">
+                                <a href="https://www.openstreetmap.org/way/${props.osm_id}" target="_blank">
+                                    View on OpenStreetMap
+                                </a>
+                            </p>
+                        </div>
+                    `;
 
-                        // Create and open popup at click location
-                        const popup = L.popup({
-                            maxWidth: 450,
-                            autoPan: true,
-                            autoPanPaddingTopLeft: [50, 50],
-                            autoPanPaddingBottomRight: [50, 50]
-                        })
-                        .setLatLng(e.latlng)
-                        .setContent(popupContent)
-                        .openOn(e.target._map);
+                    layer.bindPopup(popupContent, {
+                        maxWidth: 350
                     });
                 }
-            }).addTo(map_d0fa6507d2cc365250bffcc8add8f5a0);
+            }).addTo(map_c914cdec2ae0d50dfc4b4c60c937cf74);
         })
         .catch(error => console.error('Error loading GeoJSON:', error));
     </script>
     
     
-            <div class="folium-map" id="map_d0fa6507d2cc365250bffcc8add8f5a0" ></div>
+            <div class="folium-map" id="map_c914cdec2ae0d50dfc4b4c60c937cf74" ></div>
         
 </body>
 <script>
     
     
-            var map_d0fa6507d2cc365250bffcc8add8f5a0 = L.map(
-                "map_d0fa6507d2cc365250bffcc8add8f5a0",
+            var map_c914cdec2ae0d50dfc4b4c60c937cf74 = L.map(
+                "map_c914cdec2ae0d50dfc4b4c60c937cf74",
                 {
                     center: [51.1079, 17.0385],
                     crs: L.CRS.EPSG3857,
@@ -217,7 +171,7 @@
 
         
     
-            var tile_layer_dc369ae481f5731c84e9c17776e0d3bd = L.tileLayer(
+            var tile_layer_983d8dfb60135e65c8ec72520cdef599 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -234,7 +188,7 @@
             );
         
     
-            tile_layer_dc369ae481f5731c84e9c17776e0d3bd.addTo(map_d0fa6507d2cc365250bffcc8add8f5a0);
+            tile_layer_983d8dfb60135e65c8ec72520cdef599.addTo(map_c914cdec2ae0d50dfc4b4c60c937cf74);
         
 </script>
 </html>
